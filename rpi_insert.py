@@ -12,12 +12,12 @@ def main(file,month,year):
 
     ngi=''
     for line in lines:
-        list=line.strip().split(';')
+        list=line.strip().split(' ')
 
         if len(list)==4 and m.search(list[0]):
             ngi=list[0]
-            expired_tickets=list[1]
-            alarms_not_handled=list[2]
+            alarms_not_handled=list[1]
+            expired_tickets=list[2]
             total=list[3]
 
         date=str(year)+'-'+str(month)+'-'+'1'
