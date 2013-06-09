@@ -6,8 +6,8 @@ import getpass
 import sys
 from lxml import etree
 
-key='.globus/userkey.pem'
-cert='.globus/usercert.pem'
+key='~/.globus/userkey.pem'
+cert='~/.globus/usercert.pem'
 
 def get_state_changes(startdate,enddate,passwd):
 
