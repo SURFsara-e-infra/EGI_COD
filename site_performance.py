@@ -5,12 +5,14 @@ import pycurl
 import StringIO
 import getpass
 import commands
+import os
 from lxml import etree
 
-key='~/.globus/userkey.pem'
-cert=~/.globus/usercert.pem'
-thresholdA=70
-thresholdR=75
+home=os.getenv("HOME")
+key=home+'/.globus/userkey.pem'
+cert=home+'/.globus/usercert.pem'
+thresholdA=90
+thresholdR=95
 
 def get_certified_sites(passwd):
 
@@ -60,16 +62,15 @@ def main(date0,date1):
     sites=get_certified_sites(passwd)
 
 
-    tmp=psql("select ngi,site,count(date) from aru where date>='"+date0+"' and date<='"+date1+"' and (availability<"+str(thresholdA)+" or reliability<"+str(thresholdR)+") group by ngi,site order by count(date) desc;")
+    tmp=psql("select site,ngi,count(date) from aru where date>='"+date0+"' and date<='"+date1+"' and (availability<"+str(thresholdA)+" or reliability<"+str(thresholdR)+") group by site,ngi order by count(date) desc;")
 
     f=open('site_performance.csv','w')
     for r in tmp:
-        ngi=r[0]
-        site=r[1]
-        count=r[2]
+        site=r[0]
+        count=r[1]
 
         if site in sites:
-            f.write(ngi+';'+site+';'+str(count)+';\n')
+            f.write(site+';'+str(count)+';\n')
     f.close()
         
 
