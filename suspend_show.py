@@ -1,6 +1,40 @@
 #!/usr/bin/env python
 
 import sys,re
+import pycurl
+import StringIO
+import getpass
+from lxml import etree
+
+key='.globus/userkey.pem'
+cert='.globus/usercert.pem'
+threshold=70
+
+def get_certified_sites(passwd):
+
+    url='https://goc.egi.eu/gocdbpi/private/?method=get_cert_status_date&certification_status=Certified'
+    b=StringIO.StringIO()
+
+    c=pycurl.Curl()
+    c.setopt(pycurl.URL,url)
+    c.setopt(pycurl.WRITEFUNCTION,b.write)
+    c.setopt(pycurl.SSLKEY,key)
+    c.setopt(pycurl.SSLCERT,cert)
+    c.setopt(pycurl.SSLKEYPASSWD,passwd)
+    c.setopt(pycurl.SSL_VERIFYPEER, 0)
+    c.setopt(pycurl.SSL_VERIFYHOST, 0)
+    c.perform()
+
+    xmldoc=StringIO.StringIO(b.getvalue())
+    sites=[]
+    for _,e in etree.iterparse(xmldoc,tag='site'):
+        elist=list(e)
+        d={}
+        for i in elist:
+            d.update({i.tag:i.text})
+        if d['cert_status']=='Certified': sites.append(d['name'])
+
+    return sites
 
 def to_int(a):
     try:
@@ -16,6 +50,9 @@ def main(file):
     m1=re.compile('AsiaPacific')
     m2=re.compile('Russia')
     m3=re.compile('CERN')
+
+    passwd=getpass.getpass('Enter PEM pass phrase:')
+    sites=get_certified_sites(passwd)
 
     f=open(file,'r')
     lines=f.readlines()
@@ -44,7 +81,7 @@ def main(file):
             avm2=to_int(list[14].strip().split('%')[0])
 
         if site!='' and ngi!='':
-            if av<70 and avm1<70 and avm2<70:
+            if av<threshold and avm1<threshold and avm2<threshold and site in sites:
                 print ngi+";"+site+";"+str(av)+"%;"+str(rel)+"%"
        
 
