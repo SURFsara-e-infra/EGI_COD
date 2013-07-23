@@ -27,7 +27,7 @@ for line in list:
     oldstatus=record[2]
     newstatus=record[3]
     changed_by=record[4]
-    comment=record[5]
+    comment=re.sub('\'','\'\'',record[5])
 
     tmpdatelist=tmpdate.split('-')
     day=tmpdatelist[0]
