@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import sys,re
 
 ddict={'JAN':'01', \
        'FEB':'02', \
@@ -20,6 +20,7 @@ list=f.readlines()
 f.close()
 
 for line in list:
+    if re.search('CHANGED_BY',line) != None: continue
     record=line.strip().split(';')
     site=record[0]
     tmpdate=record[1].split(' ')[0]
